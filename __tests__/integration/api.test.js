@@ -23,6 +23,18 @@ beforeEach(() => {
   return seed(testData);
 });
 
+describe("endpointsData", () => {
+  test("endpointsData should have the correct data", () => {
+    Object.values(endpointsData).forEach((endpointEntry) => {
+      expect(endpointEntry).toMatchObject({
+        description: expect.any(String),
+        queries: expect.any(Array),
+        exampleResponse: expect.any(Object),
+      });
+    });
+  });
+});
+
 describe("/api", () => {
   test(`GET: 200 responds with an object`, () => {
     return request(app)
