@@ -5,12 +5,16 @@ const {
   handlePostgresError,
 } = require("./errors");
 const { getTopics } = require("./controllers/topics.controllers");
-const { getArticleById } = require("./controllers/articles.controllers");
+const {
+  getArticleById,
+  getArticles,
+} = require("./controllers/articles.controllers");
 const { getAPI } = require("./controllers/api.controllers");
 
 const app = express();
 
 app.get("/api/topics", getTopics);
+app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api", getAPI);
 
