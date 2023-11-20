@@ -1,5 +1,9 @@
 const express = require("express");
-const { handle404, handleServerError } = require("./errors");
+const {
+  handle404,
+  handleServerError,
+  handlePostgresError,
+} = require("./errors");
 const { getTopics } = require("./controllers/topics.controllers");
 const { getArticleById } = require("./controllers/articles.controllers");
 const { getAPI } = require("./controllers/api.controllers");
@@ -12,6 +16,8 @@ app.get("/api", getAPI);
 
 app.all("*", handle404);
 
+app.use(handlePostgresError);
 app.use(handleServerError);
 
 exports.app = app;
+//test
