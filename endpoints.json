@@ -1,6 +1,17 @@
 {
   "GET /api": {
-    "description": "serves up a json representation of all the available endpoints of the api"
+    "description": "serves up a json representation of all the available endpoints of the api",
+    "exampleResponse": {
+      "endpoints": {
+        "GET /api/bananas": {
+          "description": "serves an array of all bananas",
+          "queries": [],
+          "exampleResponse": {
+            "topics": [{ "slug": "football", "description": "Footie!" }]
+          }
+        }
+      }
+    }
   },
   "GET /api/topics": {
     "description": "serves an array of all topics",
