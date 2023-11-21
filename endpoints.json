@@ -77,7 +77,7 @@
       ]
     }
   },
-  "POST/api/articles/:article_id/comments": {
+  "POST /api/articles/:article_id/comments": {
     "description": "posts and returns a comment on an article",
     "queries": [],
     "exampleResponse": {
@@ -90,5 +90,10 @@
         "article_id": 1
       }
     }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "deletes a comment",
+    "queries": [],
+    "exampleResponse": {}
   }
 }
