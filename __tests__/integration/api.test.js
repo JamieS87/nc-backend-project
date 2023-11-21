@@ -192,6 +192,97 @@ describe("/api/articles", () => {
         expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
+
+  test("PATCH: 200 increments an article's vote count and returns the article", () => {
+    const testArticle = { ...testData.articleData[0] };
+    testArticle.created_at = new Date(testArticle.created_at).toISOString();
+    testArticle.article_id = 1;
+    testArticle.votes += 10;
+
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: 10 })
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toEqual(testArticle);
+      });
+  });
+
+  test("PATCH: 200 increments an article's vote count by a negative amount and returns the article", () => {
+    const testArticle = { ...testData.articleData[0] };
+    testArticle.created_at = new Date(testArticle.created_at).toISOString();
+    testArticle.article_id = 1;
+    testArticle.votes -= 30;
+
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: -30 })
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toEqual(testArticle);
+      });
+  });
+
+  test("PATCH: 200 when inc votes is 0, returns the article unchanged", () => {
+    const testArticle = { ...testData.articleData[0] };
+    testArticle.article_id = 1;
+    testArticle.created_at = new Date(testArticle.created_at).toISOString();
+
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: 0 })
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toEqual(testArticle);
+      });
+  });
+
+  test("PATCH: 400 returns bad request when inc_votes is not a number", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: "banana" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("PATCH: 400 returns bad request when is missing from the request body", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("PATCH: 404 returns error when article_id doesn't exist", () => {
+    return request(app)
+      .patch(`/api/articles/${testData.articleData.length + 1}`)
+      .send({})
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.status).toBe(404);
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+
+  test("PATCH: 400 returns error when article_id is of invalid type", () => {
+    return request(app)
+      .patch("/api/articles/banana")
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
 });
 
 describe("/api/topics", () => {
