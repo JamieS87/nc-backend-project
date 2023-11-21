@@ -81,3 +81,17 @@ exports.updateArticle = (article_id, updateData) => {
       return rows[0];
     });
 };
+
+exports.insertArticleComment = (article_id, comment) => {
+  const queryString = `
+  INSERT INTO comments 
+  (article_id, author, body)
+  VALUES
+  ($1, $2, $3)
+  RETURNING *
+  `;
+  const queryValues = [article_id, comment.username, comment.body];
+  return db.query(queryString, queryValues).then(({ rows }) => {
+    return rows[0];
+  });
+};

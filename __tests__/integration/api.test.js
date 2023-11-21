@@ -320,6 +320,7 @@ describe("/api/topics", () => {
 });
 
 describe("/api/articles/:article_id/comments", () => {
+  //GET
   test("GET: 200 responds with an array of an article's comments", () => {
     const { commentData: testCommentData } = testData;
     return request(app)
@@ -362,7 +363,7 @@ describe("/api/articles/:article_id/comments", () => {
             created_at: expect.any(String),
             author: expect.any(String),
             body: expect.any(String),
-            article_id: expect.any(Number),
+            article_id: 1,
           });
         });
       });
@@ -392,6 +393,118 @@ describe("/api/articles/:article_id/comments", () => {
   test("GET: 400 returns an appropriate message when article_id is of invalid type", () => {
     return request(app)
       .get(`/api/articles/banana/comments`)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  //POST
+  test("POST: 201 responds with the posted comment", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({ username: "butter_bridge", body: "Hello World!" })
+      .expect(201)
+      .then(({ body }) => {
+        const { comment } = body;
+        expect(comment).toEqual({
+          author: "butter_bridge",
+          body: "Hello World!",
+          created_at: expect.any(String),
+          comment_id: expect.any(Number),
+          votes: 0,
+          article_id: 1,
+        });
+      });
+  });
+
+  test("POST: 201 ignores unnecessary properties", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({
+        username: "butter_bridge",
+        body: "Hello World!",
+        banana: "Fyffes",
+      })
+      .expect(201)
+      .then(({ body }) => {
+        const { comment } = body;
+        expect(comment).toEqual({
+          author: "butter_bridge",
+          body: "Hello World!",
+          created_at: expect.any(String),
+          comment_id: expect.any(Number),
+          votes: 0,
+          article_id: 1,
+        });
+      });
+  });
+
+  test("POST: 404 responds with an appropriate message when article with requested id doesn't exist", () => {
+    const { articleData: testArticleData } = testData;
+    return request(app)
+      .post(`/api/articles/${testArticleData.length + 1}/comments`)
+      .send({ username: "butter_bridge", body: "Hello World!" })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.status).toBe(404);
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+
+  test("POST: 400 responds with an appropriate message when article_id is of invalid type", () => {
+    return request(app)
+      .post(`/api/articles/banana/comments`)
+      .send({ username: "butter_bridge", body: "Hello World!" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("POST: 400 responds with an appropriate message when request body is missing username field", () => {
+    const { articleData: testArticleData } = testData;
+    return request(app)
+      .post(`/api/articles/1/comments`)
+      .send({ body: "Hello World!" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("POST: 400 responds with an appropriate message when request body is missing body field", () => {
+    const { articleData: testArticleData } = testData;
+    return request(app)
+      .post(`/api/articles/1/comments`)
+      .send({ username: "butter_bridge" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("POST: 400 responds with an appropriate message when request body is empty", () => {
+    const { articleData: testArticleData } = testData;
+    return request(app)
+      .post(`/api/articles/1/comments`)
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("POST: 400 responds with an appropriate message when no user with username exists", () => {
+    const { articleData: testArticleData } = testData;
+    return request(app)
+      .post(`/api/articles/1/comments`)
+      .send({ username: "bad_user", body: "Hello World!" })
       .expect(400)
       .then(({ body }) => {
         expect(body.status).toBe(400);
