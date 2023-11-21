@@ -208,3 +208,75 @@ describe("/api/topics", () => {
       });
   });
 });
+
+describe("/api/articles/:article_id/comments", () => {
+  test("GET: 200 responds with an array of an article's comments", () => {
+    const { commentData: testCommentData } = testData;
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        const expectedNumberOfComments = testCommentData.filter((comment) => {
+          return comment.article_id === 1;
+        }).length;
+        expect(comments.length).toBe(expectedNumberOfComments);
+      });
+  });
+
+  test("GET: 200 returns an empty array if article doesn't have any comments", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toEqual([]);
+      });
+  });
+
+  test("GET: 200 returned comments have the correct properties", () => {
+    const { commentData: testCommentData } = testData;
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        const expectedNumberOfComments = testCommentData.filter((comment) => {
+          return comment.article_id === 1;
+        }).length;
+        console.log(JSON.stringify(body));
+        expect(comments.length).toBe(expectedNumberOfComments);
+        comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            article_id: expect.any(Number),
+          });
+        });
+      });
+  });
+
+  test("GET: 200 returns the most recent comments first", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+
+  test("GET: 404 returns an appropriate message if an article doesn't exist", () => {
+    const { articleData: testArticleData } = testData;
+    return request(app)
+      .get(`/api/articles/${testArticleData.length + 1}/comments`)
+      .expect(404);
+  });
+
+  test("GET: 400 returns an appropriate message when article_id is of invalid type", () => {
+    return request(app).get(`/api/articles/banana/comments`).expect(400);
+  });
+});
