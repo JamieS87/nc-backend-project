@@ -41,6 +41,7 @@ describe("base app behaviour", () => {
       .get("/BadEndPoint")
       .expect(404)
       .then(({ body }) => {
+        expect(body.status).toBe(404);
         expect(body.msg).toBe("Not Found");
       });
   });
@@ -92,6 +93,7 @@ describe("/api/articles/:article_id", () => {
       .get(`/api/articles/${testArticleData.length + 1}`)
       .expect(404)
       .then(({ body }) => {
+        expect(body.status).toBe(404);
         expect(body.msg).toBe("Not Found");
       });
   });
@@ -101,6 +103,7 @@ describe("/api/articles/:article_id", () => {
       .get(`/api/articles/banana`)
       .expect(400)
       .then(({ body }) => {
+        expect(body.status).toBe(400);
         expect(body.msg).toBe("Bad Request");
       });
   });
@@ -244,7 +247,6 @@ describe("/api/articles/:article_id/comments", () => {
         const expectedNumberOfComments = testCommentData.filter((comment) => {
           return comment.article_id === 1;
         }).length;
-        console.log(JSON.stringify(body));
         expect(comments.length).toBe(expectedNumberOfComments);
         comments.forEach((comment) => {
           expect(comment).toMatchObject({
@@ -273,10 +275,20 @@ describe("/api/articles/:article_id/comments", () => {
     const { articleData: testArticleData } = testData;
     return request(app)
       .get(`/api/articles/${testArticleData.length + 1}/comments`)
-      .expect(404);
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.status).toBe(404);
+        expect(body.msg).toBe("Not Found");
+      });
   });
 
   test("GET: 400 returns an appropriate message when article_id is of invalid type", () => {
-    return request(app).get(`/api/articles/banana/comments`).expect(400);
+    return request(app)
+      .get(`/api/articles/banana/comments`)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
   });
 });
