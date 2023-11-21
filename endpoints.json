@@ -76,5 +76,19 @@
         }
       ]
     }
+  },
+  "POST/api/articles/:article_id/comments": {
+    "description": "posts and returns a comment on an article",
+    "queries": [],
+    "exampleResponse": {
+      "comment": {
+        "author": "JR_Hartley",
+        "body": "I carry a log — yes. Is it funny to you? It is not to me.",
+        "created_at": "2020-02-23T12:01:00.000Z",
+        "comment_id": 4,
+        "votes": 0,
+        "article_id": 1
+      }
+    }
   }
 }
