@@ -312,6 +312,28 @@ describe("/api/articles/:article_id/comments", () => {
       });
   });
 
+  test("POST: 201 ignores unnecessary properties", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({
+        username: "butter_bridge",
+        body: "Hello World!",
+        banana: "Fyffes",
+      })
+      .expect(201)
+      .then(({ body }) => {
+        const { comment } = body;
+        expect(comment).toEqual({
+          author: "butter_bridge",
+          body: "Hello World!",
+          created_at: expect.any(String),
+          comment_id: expect.any(Number),
+          votes: 0,
+          article_id: 1,
+        });
+      });
+  });
+
   test("POST: 404 responds with an appropriate message when article with requested id doesn't exist", () => {
     const { articleData: testArticleData } = testData;
     return request(app)
@@ -321,6 +343,17 @@ describe("/api/articles/:article_id/comments", () => {
       .then(({ body }) => {
         expect(body.status).toBe(404);
         expect(body.msg).toBe("Not Found");
+      });
+  });
+
+  test("POST: 400 responds with an appropriate message when article_id is of invalid type", () => {
+    return request(app)
+      .post(`/api/articles/banana/comments`)
+      .send({ username: "butter_bridge", body: "Hello World!" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
       });
   });
 
