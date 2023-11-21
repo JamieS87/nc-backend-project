@@ -414,7 +414,6 @@ describe("/api/users", () => {
       .expect(200)
       .then(({ body }) => {
         const { users } = body;
-        console.log(JSON.stringify(users));
         expect(users).toHaveLength(testUsers.length);
         testUsers.forEach((testUser) => {
           expect(users).toContainEqual(testUser);
