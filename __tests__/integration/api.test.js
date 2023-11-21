@@ -225,7 +225,7 @@ describe("/api/articles", () => {
       });
   });
 
-  test("PATCH: 200 when inc votes is 0, returns the article unchanged", () => {
+  test("PATCH: 200 when inc_votes is 0, returns the article unchanged", () => {
     const testArticle = { ...testData.articleData[0] };
     testArticle.article_id = 1;
     testArticle.created_at = new Date(testArticle.created_at).toISOString();
@@ -233,6 +233,22 @@ describe("/api/articles", () => {
     return request(app)
       .patch("/api/articles/1")
       .send({ inc_votes: 0 })
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toEqual(testArticle);
+      });
+  });
+
+  test("PATCH: 200 ignores unnecessary fields in the request body", () => {
+    const testArticle = { ...testData.articleData[0] };
+    testArticle.created_at = new Date(testArticle.created_at).toISOString();
+    testArticle.article_id = 1;
+    testArticle.votes += 10;
+
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: 10, article_id: 5 })
       .expect(200)
       .then(({ body }) => {
         const { article } = body;
@@ -251,7 +267,7 @@ describe("/api/articles", () => {
       });
   });
 
-  test("PATCH: 400 returns bad request when is missing from the request body", () => {
+  test("PATCH: 400 returns bad request when inc_votes is missing from the request body", () => {
     return request(app)
       .patch("/api/articles/1")
       .send({})
