@@ -62,6 +62,26 @@ exports.selectArticleComments = (article_id) => {
   });
 };
 
+exports.updateArticle = (article_id, updateData) => {
+  if (!updateData || updateData.inc_votes === undefined) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+  const queryString = `
+  UPDATE articles
+  SET votes = articles.votes + $1
+  WHERE article_id = $2
+  RETURNING *;
+  `;
+  return db
+    .query(queryString, [updateData.inc_votes, article_id])
+    .then(({ rows }) => {
+      if (!rows.length) {
+        return Promise.reject({ status: 404, msg: "Not Found" });
+      }
+      return rows[0];
+    });
+};
+
 exports.insertArticleComment = (article_id, comment) => {
   const queryString = `
   INSERT INTO comments 
