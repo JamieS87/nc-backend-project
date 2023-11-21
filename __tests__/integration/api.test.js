@@ -281,7 +281,7 @@ describe("/api/articles", () => {
   test("PATCH: 404 returns error when article_id doesn't exist", () => {
     return request(app)
       .patch(`/api/articles/${testData.articleData.length + 1}`)
-      .send({})
+      .send({ inc_votes: 10 })
       .expect(404)
       .then(({ body }) => {
         expect(body.status).toBe(404);
@@ -292,7 +292,7 @@ describe("/api/articles", () => {
   test("PATCH: 400 returns error when article_id is of invalid type", () => {
     return request(app)
       .patch("/api/articles/banana")
-      .send({})
+      .send({ inc_votes: 50 })
       .expect(400)
       .then(({ body }) => {
         expect(body.status).toBe(400);
