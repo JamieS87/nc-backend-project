@@ -9,6 +9,7 @@ const {
   getArticleById,
   getArticles,
   getArticleComments,
+  patchArticle,
   postArticleComment,
 } = require("./controllers/articles.controllers");
 const { getAPI } = require("./controllers/api.controllers");
@@ -21,6 +22,7 @@ app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id/comments", getArticleComments);
 app.post("/api/articles/:article_id/comments", postArticleComment);
 app.get("/api/articles/:article_id", getArticleById);
+app.patch("/api/articles/:article_id", patchArticle);
 app.get("/api", getAPI);
 
 app.all("*", handle404);
