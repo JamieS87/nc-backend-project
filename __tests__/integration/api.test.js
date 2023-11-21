@@ -405,3 +405,20 @@ describe("/api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("/api/users", () => {
+  test("GET: 200 returns an array of all users", () => {
+    const testUsers = testData.userData;
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        const { users } = body;
+        console.log(JSON.stringify(users));
+        expect(users).toHaveLength(testUsers.length);
+        testUsers.forEach((testUser) => {
+          expect(users).toContainEqual(testUser);
+        });
+      });
+  });
+});
