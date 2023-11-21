@@ -118,5 +118,10 @@
         "article_id": 1
       }
     }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "deletes a comment",
+    "queries": [],
+    "exampleResponse": {}
   }
 }

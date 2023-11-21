@@ -512,3 +512,30 @@ describe("/api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("/api/comments/:comment_id", () => {
+  test("DELETE: 204 deletes a comment and returns no content", () => {
+    return request(app).delete("/api/comments/1").expect(204);
+  });
+
+  test("DELETE: 404 when attempting to delete a comment that does not exist", () => {
+    const testCommentsLength = testData.commentData.length;
+    return request(app)
+      .delete(`/api/comments/${testCommentsLength + 1}`)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.status).toBe(404);
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+
+  test("DELETE: 400 when attempting to delete a comment with an invalid type for comment_id", () => {
+    return request(app)
+      .delete(`/api/comments/banana`)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});
