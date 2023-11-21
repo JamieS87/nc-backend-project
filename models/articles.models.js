@@ -1,5 +1,22 @@
 const db = require("../db/connection");
 
+exports.checkArticleExists = (article_id) => {
+  return db
+    .query(
+      `
+  SELECT *
+  FROM articles
+  WHERE article_id = $1
+  `,
+      [article_id]
+    )
+    .then(({ rows }) => {
+      if (!rows.length) {
+        return Promise.reject({ status: 404, msg: "Not Found" });
+      }
+    });
+};
+
 exports.selectArticleById = (article_id) => {
   const queryString = `
   SELECT *
@@ -15,7 +32,7 @@ exports.selectArticleById = (article_id) => {
     }
   });
 };
-//test
+
 exports.selectArticles = () => {
   const queryString = `
   SELECT articles.author, articles.title, articles.article_id, articles.topic, 
@@ -27,6 +44,20 @@ exports.selectArticles = () => {
   ORDER BY created_at DESC
   `;
   return db.query(queryString).then(({ rows }) => {
+    return rows;
+  });
+};
+
+exports.selectArticleComments = (article_id) => {
+  const queryString = `
+  SELECT comments.comment_id, comments.votes, comments.created_at,
+         comments.author, comments.body, comments.article_id
+  FROM comments
+  JOIN articles USING (article_id)
+  WHERE articles.article_id = $1
+  ORDER BY comments.created_at DESC
+  `;
+  return db.query(queryString, [article_id]).then(({ rows }) => {
     return rows;
   });
 };
