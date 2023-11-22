@@ -299,6 +299,49 @@ describe("/api/articles", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
+
+  test("GET: 200 returns a list of articles filtered by topic", () => {
+    const queryTopic = "mitch";
+    const expectedLength = testData.articleData.filter(
+      (article) => article.topic === queryTopic
+    ).length;
+    return request(app)
+      .get("/api/articles")
+      .query({ topic: queryTopic })
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        const isCorrectTopic = (article) => article.topic === queryTopic;
+        expect(articles).toHaveLength(expectedLength);
+        expect(articles).toSatisfyAll(isCorrectTopic);
+      });
+  });
+
+  test("GET: 200 returns an empty array when no articles match topic query", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ topic: "bananas" })
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeArrayOfSize(0);
+      });
+  });
+
+  test("GET: 200 allows topic query to be a number", () => {
+    return request(app).get("/api/articles").query({ topic: 10 }).expect(200);
+  });
+
+  test("GET: 400 returns bad request when topic query is an object", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ topic: { topic: "mitch" } })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
 });
 
 describe("/api/topics", () => {
