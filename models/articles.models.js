@@ -23,8 +23,8 @@ exports.selectArticleById = (article_id) => {
          articles.topic, articles.created_at, articles.votes, 
          articles.article_img_url, articles.body, COUNT(comments.comment_id)::INTEGER as comment_count
   FROM articles
-  JOIN comments USING (article_id)
-  WHERE article_id = $1
+  LEFT JOIN comments USING (article_id)
+  WHERE articles.article_id = $1
   GROUP BY articles.article_id
   `;
   const queryValues = [article_id];
