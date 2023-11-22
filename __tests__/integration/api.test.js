@@ -539,3 +539,19 @@ describe("/api/comments/:comment_id", () => {
       });
   });
 });
+
+describe("/api/users", () => {
+  test("GET: 200 returns an array of all users", () => {
+    const testUsers = testData.userData;
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        const { users } = body;
+        expect(users).toHaveLength(testUsers.length);
+        testUsers.forEach((testUser) => {
+          expect(users).toContainEqual(testUser);
+        });
+      });
+  });
+});
