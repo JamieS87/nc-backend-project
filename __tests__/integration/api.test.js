@@ -299,6 +299,45 @@ describe("/api/articles", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
+
+  test("GET: 200 returns a list of articles filtered by topic", () => {
+    const queryTopic = "mitch";
+    const expectedLength = testData.articleData.filter(
+      (article) => article.topic === queryTopic
+    ).length;
+    return request(app)
+      .get("/api/articles")
+      .query({ topic: queryTopic })
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        const isCorrectTopic = (article) => article.topic === queryTopic;
+        expect(articles).toHaveLength(expectedLength);
+        expect(articles).toSatisfyAll(isCorrectTopic);
+      });
+  });
+
+  test("GET: 404 returns not found when topic query value is not a topic that exists", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ topic: "bananas" })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.status).toBe(404);
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+
+  test("GET: 200 returns empty array when topic exists, but no articles match", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ topic: "paper" })
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeArrayOfSize(0);
+      });
+  });
 });
 
 describe("/api/topics", () => {
