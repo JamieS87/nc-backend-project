@@ -317,29 +317,25 @@ describe("/api/articles", () => {
       });
   });
 
-  test("GET: 200 returns an empty array when no articles match topic query", () => {
+  test("GET: 404 returns not found when topic query value is not a topic that exists", () => {
     return request(app)
       .get("/api/articles")
       .query({ topic: "bananas" })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.status).toBe(404);
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+
+  test("GET: 200 returns empty array when topic exists, but no articles match", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ topic: "paper" })
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
         expect(articles).toBeArrayOfSize(0);
-      });
-  });
-
-  test("GET: 200 allows topic query to be a number", () => {
-    return request(app).get("/api/articles").query({ topic: 10 }).expect(200);
-  });
-
-  test("GET: 400 returns bad request when topic query is an object", () => {
-    return request(app)
-      .get("/api/articles")
-      .query({ topic: { topic: "mitch" } })
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.status).toBe(400);
-        expect(body.msg).toBe("Bad Request");
       });
   });
 });

@@ -34,11 +34,11 @@ exports.selectArticleById = (article_id) => {
 };
 
 exports.selectArticles = (topic) => {
-  const validTopicTypes = ["string"];
+  // const validTopicTypes = ["string"];
 
-  if (topic && !validTopicTypes.includes(typeof topic)) {
-    return Promise.reject({ status: 400, msg: "Bad Request" });
-  }
+  // if (topic && !validTopicTypes.includes(typeof topic)) {
+  //   return Promise.reject({ status: 400, msg: "Bad Request" });
+  // }
 
   const queryValues = [];
   let queryString = `

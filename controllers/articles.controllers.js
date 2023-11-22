@@ -6,8 +6,9 @@ const {
   updateArticle,
   insertArticleComment,
 } = require("../models/articles.models");
+const { checkTopicExists } = require("../models/topics.models");
 
-const { checkUserExistsByUsername } = require("../models/users.models");
+//const { checkUserExistsByUsername } = require("../models/users.models");
 
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
@@ -22,11 +23,24 @@ exports.getArticleById = (req, res, next) => {
 exports.getArticles = (req, res, next) => {
   const { topic } = req.query;
 
-  selectArticles(topic)
-    .then((articles) => {
+  const promises = [selectArticles(topic)];
+  if (topic) {
+    promises.push(checkTopicExists(topic));
+  }
+  Promise.all(promises)
+    .then(([articles, _]) => {
       res.status(200).send({ articles });
     })
     .catch(next);
+
+  // checkArticleExists(topic)
+  //   .then(() => {
+  //     return selectArticles(topic);
+  //   })
+  //   .then((articles) => {
+  //     res.status(200).send({ articles });
+  //   })
+  //   .catch(next);
 };
 
 exports.getArticleComments = (req, res, next) => {
