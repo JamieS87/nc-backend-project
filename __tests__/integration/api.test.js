@@ -83,7 +83,27 @@ describe("/api/articles/:article_id", () => {
           created_at: expect.any(String),
           votes: expect.any(Number),
           article_img_url: expect.any(String),
+          comment_count: expect.any(Number),
         });
+      });
+  });
+
+  test("GET: 200 responds with the correct article", () => {
+    const expectedArticle = { ...testData.articleData[0] };
+    expectedArticle.created_at = new Date(
+      expectedArticle.created_at
+    ).toISOString();
+    expectedArticle.article_id = 1;
+    expectedArticle.comment_count = testData.commentData.filter(
+      (comment) => comment.article_id === 1
+    ).length;
+
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toEqual(expectedArticle);
       });
   });
 
