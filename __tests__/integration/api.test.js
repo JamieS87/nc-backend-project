@@ -669,8 +669,6 @@ describe("/api/comments/:comment_id", () => {
       .then(({ body }) => {
         const { comment } = body;
         expect(comment).toMatchObject(expectedComment);
-        //expect(comment.votes).toBe(expectedVotes);
-        //expect(comment.comment_id).toBe(1);
       });
   });
 
