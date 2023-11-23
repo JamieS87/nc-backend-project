@@ -38,6 +38,30 @@
       ]
     }
   },
+  "POST /api/articles": {
+    "description": "posts a new article",
+    "queries": [],
+    "exampleRequestBody": {
+      "author": "butter_bridge",
+      "title": "Jackanackanory",
+      "body": "Cashback!",
+      "topic": "cats",
+      "article_img_url": "https://pbs.twimg.com/profile_images/1693608245502373888/kfxRm1Xj_400x400.jpg"
+    },
+    "exampleResponse": {
+      "article": {
+        "article_id": 14,
+        "title": "Jackanackanory",
+        "topic": "cats",
+        "author": "butter_bridge",
+        "body": "Cashback!",
+        "created_at": "2023-11-23T15:14:26.063Z",
+        "votes": 0,
+        "article_img_url": "https://pbs.twimg.com/profile_images/1693608245502373888/kfxRm1Xj_400x400.jpg",
+        "comment_count": 0
+      }
+    }
+  },
   "GET /api/articles/:article_id": {
     "description": "serves up an article object",
     "queries": [],
