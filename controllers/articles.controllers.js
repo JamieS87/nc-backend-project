@@ -22,14 +22,15 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
   const { topic, sort_by, order } = req.query;
+  const { limit, p } = req.query;
 
-  const promises = [selectArticles(topic, sort_by, order)];
+  const promises = [selectArticles(topic, sort_by, order, limit, p)];
   if (topic) {
     promises.push(checkTopicExists(topic));
   }
   Promise.all(promises)
     .then(([articles, _]) => {
-      res.status(200).send({ articles });
+      res.status(200).send({ articles, total_count: articles.length });
     })
     .catch(next);
 };

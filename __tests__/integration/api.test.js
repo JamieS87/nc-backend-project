@@ -143,14 +143,13 @@ describe("/api/articles/:article_id", () => {
 describe("/api/articles", () => {
   test("GET: 200 gets all articles", () => {
     const { articleData: testArticleData } = testData;
-    const { commentData: testCommentData } = testData;
 
     return request(app)
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
-        expect(articles.length).toBe(testArticleData.length);
+        expect(articles.length).toBe(10);
       });
   });
 
@@ -163,7 +162,7 @@ describe("/api/articles", () => {
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
-        expect(articles.length).toBe(testArticleData.length);
+        expect(articles.length).toBe(10);
         articles.forEach((article) => {
           expect(article).toMatchObject({
             title: expect.any(String),
@@ -185,7 +184,7 @@ describe("/api/articles", () => {
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
-        expect(articles.length).toBe(testArticleData.length);
+        expect(articles.length).toBe(10);
         articles.forEach((article) => {
           expect(article.body).toBe(undefined);
         });
@@ -193,7 +192,6 @@ describe("/api/articles", () => {
   });
 
   test("GET: 200 returned articles have the correct comment_count", () => {
-    const { articleData: testArticleData } = testData;
     const { commentData: testCommentData } = testData;
 
     return request(app)
@@ -201,7 +199,7 @@ describe("/api/articles", () => {
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
-        expect(articles.length).toBe(testArticleData.length);
+        expect(articles.length).toBe(10);
         articles.forEach((article) => {
           const expectedCommentCount = testCommentData.filter((comment) => {
             return comment.article_id === article.article_id;
@@ -219,7 +217,7 @@ describe("/api/articles", () => {
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
-        expect(articles.length).toBe(testArticleData.length);
+        expect(articles.length).toBe(10);
         expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
@@ -332,7 +330,7 @@ describe("/api/articles", () => {
   });
 
   test("GET: 200 returns a list of articles filtered by topic", () => {
-    const queryTopic = "mitch";
+    const queryTopic = "cats";
     const expectedLength = testData.articleData.filter(
       (article) => article.topic === queryTopic
     ).length;
@@ -377,7 +375,7 @@ describe("/api/articles", () => {
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
-        expect(articles.length).toBe(testData.articleData.length);
+        expect(articles.length).toBe(10);
         expect(articles).toBeSortedBy("topic", { descending: true });
       });
   });
@@ -400,7 +398,7 @@ describe("/api/articles", () => {
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
-        expect(articles.length).toBe(testData.articleData.length);
+        expect(articles.length).toBe(10);
         expect(articles).toBeSortedBy("created_at", { descending: false });
       });
   });
@@ -593,6 +591,109 @@ describe("/api/articles", () => {
         "https://pbs.twimg.com/profile_images/1693608245502373888/kfxRm1Xj_400x400.jpg",
     };
     return request(app).post("/api/articles").send(newArticle).expect(200);
+  });
+
+  test("GET: 200 returns a paginated list of articles", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ limit: 4, p: 1 })
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeArrayOfSize(4);
+      });
+  });
+
+  test("GET: 200 returns the correct page", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ sort: "created_at", limit: 4, p: 2 })
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeArrayOfSize(4);
+        expect(articles.map((article) => article.article_id)).toEqual([
+          13, 5, 1, 9,
+        ]);
+      });
+  });
+
+  test("GET: 200 default limit is 10", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ p: 1 })
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeArrayOfSize(10);
+      });
+  });
+
+  test("GET: 200 paginated response has the correct total_count property", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ limit: 4, p: 1 })
+      .expect(200)
+      .then(({ body }) => {
+        const { articles, total_count } = body;
+        expect(articles).toBeArrayOfSize(4);
+        expect(total_count).toBe(4);
+      });
+  });
+
+  test("GET: 400 returns bad request when limit query is of invalid type", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ limit: "banana", p: 1 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 400 returns bad request when page query is of invalid type", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ limit: 10, p: "banana" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 400 returns bad request when limit is negative", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ limit: -10, p: 1 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 400 returns bad request when p is negative", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ limit: 4, p: -2 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 400 returns bad request when p is 0", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ limit: 4, p: 0 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
   });
 });
 

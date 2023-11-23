@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const format = require("pg-format");
 
 exports.checkArticleExists = (article_id) => {
   return db
@@ -37,7 +38,13 @@ exports.selectArticleById = (article_id) => {
   });
 };
 
-exports.selectArticles = (topic, sort_by = "created_at", order = "desc") => {
+exports.selectArticles = (
+  topic,
+  sort_by = "created_at",
+  order = "desc",
+  limit = 10,
+  p = 1
+) => {
   const validSortValues = [
     "topic",
     "created_at",
@@ -46,6 +53,7 @@ exports.selectArticles = (topic, sort_by = "created_at", order = "desc") => {
     "title",
     "comment_count",
   ];
+
   if (!validSortValues.includes(sort_by)) {
     return Promise.reject({ status: 400, msg: "Bad Request" });
   }
@@ -72,6 +80,9 @@ exports.selectArticles = (topic, sort_by = "created_at", order = "desc") => {
   GROUP BY articles.article_id
   ORDER BY ${sort_by} ${order}
   `;
+
+  queryString += format("\nLIMIT %L OFFSET %L", limit, (p - 1) * limit);
+
   return db.query(queryString, queryValues).then(({ rows }) => {
     return rows;
   });
