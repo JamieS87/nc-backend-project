@@ -604,7 +604,7 @@ describe("/api/articles", () => {
       });
   });
 
-  test("GET: 200 returns the correct page", () => {
+  test("GET: 200 returns the correct articles for the queried page", () => {
     return request(app)
       .get("/api/articles")
       .query({ sort: "created_at", limit: 4, p: 2 })
@@ -615,6 +615,7 @@ describe("/api/articles", () => {
         expect(articles.map((article) => article.article_id)).toEqual([
           13, 5, 1, 9,
         ]);
+        expect(body.total_count).toBe(4);
       });
   });
 
