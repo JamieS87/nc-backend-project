@@ -654,6 +654,84 @@ describe("/api/comments/:comment_id", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
+
+  test("PATCH: 200 updates a comment's votes and returns the comment", () => {
+    const expectedVotes = testData.commentData[0].votes + 10;
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: 10 })
+      .expect(200)
+      .then(({ body }) => {
+        const { comment } = body;
+        expect(comment.votes).toBe(expectedVotes);
+        expect(comment.comment_id).toBe(1);
+      });
+  });
+
+  test("PATCH: 200 inc_votes with a negative value decreases a comment's votes", () => {
+    const expectedVotes = testData.commentData[0].votes - 10;
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: -10 })
+      .expect(200)
+      .then(({ body }) => {
+        const { comment } = body;
+        expect(comment.votes).toBe(expectedVotes);
+        expect(comment.comment_id).toBe(1);
+      });
+  });
+
+  test("PATCH: 400 when attempting to patch a comment with invalid comment_id type", () => {
+    return request(app)
+      .patch("/api/comments/banana")
+      .send({ inc_votes: 10 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("PATCH: 404 not found when attempting to update a non-existent comment", () => {
+    const testCommentsLength = testData.commentData.length;
+    return request(app)
+      .patch(`/api/comments/${testCommentsLength + 1}`)
+      .send({ inc_votes: 10 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.status).toBe(404);
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+
+  test("PATCH: 400 bad request when request body doesn't contain inc_votes", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ not_inc_votes: 20 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("PATCH: 400 bad request when inc_votes is of invalid type", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: "banana" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("PATCH: 200 silently ignores extra fields in request body", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: 10, extra_prop: "Hello" })
+      .expect(200);
+  });
 });
 
 describe("/api/users", () => {

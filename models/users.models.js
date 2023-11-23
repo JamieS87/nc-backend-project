@@ -22,7 +22,6 @@ exports.selectUsers = () => {
 };
 
 exports.selectUserByUsername = (username) => {
-  console.log(username);
   return db
     .query(
       `
