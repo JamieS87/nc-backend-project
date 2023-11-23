@@ -87,6 +87,37 @@ describe("/api/articles/:article_id", () => {
       });
   });
 
+  describe("/api/articles/:article_id", () => {
+    test("GET 200 returned article has a comment_count property with the correct value", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body }) => {
+          const { article } = body;
+          expect(article.comment_count).toBe(11);
+        });
+    });
+  });
+
+  test("GET: 200 responds with the correct article", () => {
+    const expectedArticle = { ...testData.articleData[0] };
+    expectedArticle.created_at = new Date(
+      expectedArticle.created_at
+    ).toISOString();
+    expectedArticle.article_id = 1;
+    expectedArticle.comment_count = testData.commentData.filter(
+      (comment) => comment.article_id === 1
+    ).length;
+
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toEqual(expectedArticle);
+      });
+  });
+
   test("GET: 404 responds with appropriate message when attempting to GET an article that doesn't exist", () => {
     const { articleData: testArticleData } = testData;
     return request(app)

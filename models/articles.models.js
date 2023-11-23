@@ -19,9 +19,13 @@ exports.checkArticleExists = (article_id) => {
 
 exports.selectArticleById = (article_id) => {
   const queryString = `
-  SELECT *
+  SELECT articles.author, articles.title, articles.article_id, 
+         articles.topic, articles.created_at, articles.votes, 
+         articles.article_img_url, articles.body, COUNT(comments.comment_id)::INTEGER as comment_count
   FROM articles
-  WHERE article_id = $1
+  LEFT JOIN comments USING (article_id)
+  WHERE articles.article_id = $1
+  GROUP BY articles.article_id
   `;
   const queryValues = [article_id];
   return db.query(queryString, queryValues).then(({ rows }) => {
