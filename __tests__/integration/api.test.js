@@ -369,6 +369,52 @@ describe("/api/articles", () => {
         expect(articles).toBeArrayOfSize(0);
       });
   });
+
+  test("GET: 200 returned articles are sorted by sort_by query value", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ sort_by: "topic" })
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles.length).toBe(testData.articleData.length);
+        expect(articles).toBeSortedBy("topic", { descending: true });
+      });
+  });
+
+  test("GET: 400 returns bad request when sort_by is not a valid sorting option", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ sort_by: "bananas" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 200 articles can be ordered by order query", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ order: "asc" })
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles.length).toBe(testData.articleData.length);
+        expect(articles).toBeSortedBy("created_at", { descending: false });
+      });
+  });
+
+  test("GET: 400 returns bad request if order query is invalid", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ order: "bananas" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
 });
 
 describe("/api/topics", () => {

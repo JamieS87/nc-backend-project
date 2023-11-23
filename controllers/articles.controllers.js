@@ -21,9 +21,9 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  const { topic } = req.query;
+  const { topic, sort_by, order } = req.query;
 
-  const promises = [selectArticles(topic)];
+  const promises = [selectArticles(topic, sort_by, order)];
   if (topic) {
     promises.push(checkTopicExists(topic));
   }
@@ -32,15 +32,6 @@ exports.getArticles = (req, res, next) => {
       res.status(200).send({ articles });
     })
     .catch(next);
-
-  // checkArticleExists(topic)
-  //   .then(() => {
-  //     return selectArticles(topic);
-  //   })
-  //   .then((articles) => {
-  //     res.status(200).send({ articles });
-  //   })
-  //   .catch(next);
 };
 
 exports.getArticleComments = (req, res, next) => {
