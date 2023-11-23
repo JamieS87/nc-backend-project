@@ -656,15 +656,21 @@ describe("/api/comments/:comment_id", () => {
   });
 
   test("PATCH: 200 updates a comment's votes and returns the comment", () => {
-    const expectedVotes = testData.commentData[0].votes + 10;
+    const expectedComment = { ...testData.commentData[0] };
+    expectedComment.votes += 10;
+    expectedComment.created_at = new Date(
+      expectedComment.created_at
+    ).toISOString();
+    expectedComment.comment_id = 1;
     return request(app)
       .patch("/api/comments/1")
       .send({ inc_votes: 10 })
       .expect(200)
       .then(({ body }) => {
         const { comment } = body;
-        expect(comment.votes).toBe(expectedVotes);
-        expect(comment.comment_id).toBe(1);
+        expect(comment).toMatchObject(expectedComment);
+        //expect(comment.votes).toBe(expectedVotes);
+        //expect(comment.comment_id).toBe(1);
       });
   });
 
@@ -673,6 +679,19 @@ describe("/api/comments/:comment_id", () => {
     return request(app)
       .patch("/api/comments/1")
       .send({ inc_votes: -10 })
+      .expect(200)
+      .then(({ body }) => {
+        const { comment } = body;
+        expect(comment.votes).toBe(expectedVotes);
+        expect(comment.comment_id).toBe(1);
+      });
+  });
+
+  test("PATCH: 200 inc_votes with a 0 value doesn't change an article's votes", () => {
+    const expectedVotes = testData.commentData[0].votes;
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: 0 })
       .expect(200)
       .then(({ body }) => {
         const { comment } = body;
