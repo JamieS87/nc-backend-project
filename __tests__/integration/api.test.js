@@ -668,17 +668,6 @@ describe("/api/comments/:comment_id", () => {
       });
   });
 
-  test("PATCH: 400 when attempting to patch a comment with invalid comment_id type", () => {
-    return request(app)
-      .patch("/api/comments/banana")
-      .send({ inc_votes: 10 })
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.status).toBe(400);
-        expect(body.msg).toBe("Bad Request");
-      });
-  });
-
   test("PATCH: 200 inc_votes with a negative value decreases a comment's votes", () => {
     const expectedVotes = testData.commentData[0].votes - 10;
     return request(app)
@@ -689,6 +678,17 @@ describe("/api/comments/:comment_id", () => {
         const { comment } = body;
         expect(comment.votes).toBe(expectedVotes);
         expect(comment.comment_id).toBe(1);
+      });
+  });
+
+  test("PATCH: 400 when attempting to patch a comment with invalid comment_id type", () => {
+    return request(app)
+      .patch("/api/comments/banana")
+      .send({ inc_votes: 10 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
       });
   });
 
