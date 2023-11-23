@@ -124,3 +124,31 @@ exports.insertArticleComment = (article_id, comment) => {
     return rows[0];
   });
 };
+
+exports.insertArticle = (articleData) => {
+  const insertColumnNames = ["author", "title", "body", "topic"];
+  const insertValuesList = ["$1", "$2", "$3", "$4"];
+  const queryValues = [
+    articleData.author,
+    articleData.title,
+    articleData.body,
+    articleData.topic,
+  ];
+
+  if (articleData.article_img_url) {
+    insertColumnNames.push("article_img_url");
+    insertValuesList.push("$5");
+    queryValues.push(articleData.article_img_url);
+  }
+
+  const queryString = `
+  INSERT INTO articles (${insertColumnNames.join(",")})
+  VALUES
+  (${insertValuesList.join(", ")})
+  RETURNING *, 0 AS comment_count;
+  `;
+
+  return db.query(queryString, queryValues).then(({ rows }) => {
+    return rows[0];
+  });
+};

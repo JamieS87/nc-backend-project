@@ -415,6 +415,185 @@ describe("/api/articles", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
+
+  test("POST: 201 creates and returns a new article", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "Jackanackanory",
+      body: "Cashback!",
+      topic: "cats",
+      article_img_url:
+        "https://pbs.twimg.com/profile_images/1693608245502373888/kfxRm1Xj_400x400.jpg",
+    };
+
+    const expectedArticle = {
+      ...newArticle,
+      created_at: expect.any(String),
+      votes: 0,
+      article_id: testData.articleData.length + 1,
+      comment_count: 0,
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toMatchObject(expectedArticle);
+      });
+  });
+
+  test("POST: 201 creates and returns a new article with a default article_img_url if field is missing from request body", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "Jackanackanory",
+      body: "Cashback!",
+      topic: "cats",
+    };
+
+    const expectedArticle = {
+      ...newArticle,
+      article_img_url:
+        "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+      created_at: expect.any(String),
+      votes: 0,
+      article_id: testData.articleData.length + 1,
+      comment_count: 0,
+    };
+
+    const expectedId = testData.articleData.length + 1;
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toMatchObject(expectedArticle);
+      });
+  });
+
+  test("POST: 404 returns not found if author does not exist", () => {
+    const newArticle = {
+      author: "highnoon",
+      title: "Jackanackanory",
+      body: "Cashback!",
+      topic: "cats",
+      article_img_url:
+        "https://pbs.twimg.com/profile_images/1693608245502373888/kfxRm1Xj_400x400.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.status).toBe(404);
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+
+  test("POST: 404 returns not found if topic does not exist", () => {
+    const newArticle = {
+      author: "highnoon",
+      title: "Jackanackanory",
+      body: "Cashback!",
+      topic: "dogs",
+      article_img_url:
+        "https://pbs.twimg.com/profile_images/1693608245502373888/kfxRm1Xj_400x400.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.status).toBe(404);
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+
+  test("POST: 400 returns bad request if author is missing from request body", () => {
+    const newArticle = {
+      title: "Jackanackanory",
+      body: "Cashback!",
+      topic: "dogs",
+      article_img_url:
+        "https://pbs.twimg.com/profile_images/1693608245502373888/kfxRm1Xj_400x400.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("POST: 400 returns bad request if title is missing from request body", () => {
+    const newArticle = {
+      author: "highnoon",
+      body: "Cashback!",
+      topic: "dogs",
+      article_img_url:
+        "https://pbs.twimg.com/profile_images/1693608245502373888/kfxRm1Xj_400x400.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("POST: 400 returns bad request if body is missing from request body", () => {
+    const newArticle = {
+      author: "highnoon",
+      title: "Jackanackanory",
+      topic: "dogs",
+      article_img_url:
+        "https://pbs.twimg.com/profile_images/1693608245502373888/kfxRm1Xj_400x400.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("POST: 400 returns bad request if topic is missing from request body", () => {
+    const newArticle = {
+      author: "highnoon",
+      title: "Jackanackanory",
+      body: "Cashback!",
+      article_img_url:
+        "https://pbs.twimg.com/profile_images/1693608245502373888/kfxRm1Xj_400x400.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("POST: 200 silently ignores unnecesary properties in the request body", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "Jackanackanory",
+      body: "Cashback!",
+      topic: "cats",
+      article_img_url:
+        "https://pbs.twimg.com/profile_images/1693608245502373888/kfxRm1Xj_400x400.jpg",
+    };
+    return request(app).post("/api/articles").send(newArticle).expect(200);
+  });
 });
 
 describe("/api/topics", () => {
@@ -616,15 +795,14 @@ describe("/api/articles/:article_id/comments", () => {
       });
   });
 
-  test("POST: 400 responds with an appropriate message when no user with username exists", () => {
-    const { articleData: testArticleData } = testData;
+  test("POST: 404 responds with an appropriate message when no user with username exists", () => {
     return request(app)
       .post(`/api/articles/1/comments`)
       .send({ username: "bad_user", body: "Hello World!" })
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
-        expect(body.status).toBe(400);
-        expect(body.msg).toBe("Bad Request");
+        expect(body.status).toBe(404);
+        expect(body.msg).toBe("Not Found");
       });
   });
 });

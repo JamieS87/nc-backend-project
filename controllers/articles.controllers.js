@@ -1,4 +1,5 @@
 const {
+  insertArticle,
   selectArticleById,
   selectArticles,
   selectArticleComments,
@@ -7,8 +8,7 @@ const {
   insertArticleComment,
 } = require("../models/articles.models");
 const { checkTopicExists } = require("../models/topics.models");
-
-//const { checkUserExistsByUsername } = require("../models/users.models");
+const { checkUserExistsByUsername } = require("../models/users.models");
 
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
@@ -67,13 +67,19 @@ exports.postArticleComment = (req, res, next) => {
   if (!/^[0-9]+$/.test(article_id)) {
     next({ status: 400, msg: "Bad Request" });
   } else {
-    checkArticleExists(article_id)
-      .then(() => {
-        return insertArticleComment(article_id, comment);
-      })
+    insertArticleComment(article_id, comment)
       .then((comment) => {
         res.status(201).send({ comment });
       })
       .catch(next);
   }
+};
+
+exports.postArticle = (req, res, next) => {
+  const articleData = req.body;
+  insertArticle(articleData)
+    .then((article) => {
+      res.status(200).send({ article });
+    })
+    .catch(next);
 };
