@@ -717,6 +717,67 @@ describe("/api/topics", () => {
         });
       });
   });
+
+  test("POST: 201 creates and returns a new topic", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({ slug: "tdd", description: "test-driven development" })
+      .expect(201)
+      .then(({ body }) => {
+        const { topic } = body;
+        expect(topic.slug).toBe("tdd");
+        expect(topic.description).toBe("test-driven development");
+      });
+  });
+
+  test("POST: 201 silently ignores unnecessary fields", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({
+        slug: "tdd",
+        description: "test-driven development",
+        bananas: "Fyffes",
+      })
+      .expect(201)
+      .then(({ body }) => {
+        const { topic } = body;
+        expect(topic.slug).toBe("tdd");
+        expect(topic.description).toBe("test-driven development");
+      });
+  });
+
+  test("POST: 422 doesn't allow creating a topic when the topic already exists", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({ slug: "cats", description: "anything" })
+      .expect(422)
+      .then(({ body }) => {
+        expect(body.status).toBe(422);
+        expect(body.msg).toBe("Unprocessable Content");
+      });
+  });
+
+  test("POST: 400 when request body is missing a slug field", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({ description: "anything" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("POST: 400 when request body is missing a description field", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({ topic: "tdd" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
 });
 
 describe("/api/articles/:article_id/comments", () => {

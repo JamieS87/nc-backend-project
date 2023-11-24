@@ -12,6 +12,8 @@ exports.handlePostgresError = (err, req, res, next) => {
     res.status(400).send({ status: 400, msg: "Bad Request" });
   } else if (err.code === "23503") {
     res.status(404).send({ status: 404, msg: "Not Found" });
+  } else if (err.code === "23505") {
+    res.status(422).send({ status: 422, msg: "Unprocessable Content" });
   } else {
     next(err);
   }

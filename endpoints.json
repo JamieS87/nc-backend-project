@@ -21,6 +21,20 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "POST /api/topics": {
+    "description": "creates a new topic",
+    "queries": [],
+    "exampleRequestBody": {
+      "slug": "bananas",
+      "description": "bananas for bananas"
+    },
+    "exampleResponse": {
+      "topic": {
+        "slug": "bananas",
+        "description": "bananas for bananas"
+      }
+    }
+  },
   "GET /api/articles": {
     "description": "serves an array of all articles",
     "queries": ["topic", "sort_by", "order", "limit", "p"],
