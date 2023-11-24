@@ -142,8 +142,6 @@ describe("/api/articles/:article_id", () => {
 
 describe("/api/articles", () => {
   test("GET: 200 gets all articles", () => {
-    const { articleData: testArticleData } = testData;
-
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -154,9 +152,6 @@ describe("/api/articles", () => {
   });
 
   test("GET: 200 returned articles have the correct properties", () => {
-    const { articleData: testArticleData } = testData;
-    const { commentData: testCommentData } = testData;
-
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -178,7 +173,6 @@ describe("/api/articles", () => {
   });
 
   test("GET: 200 returned articles do not have a body property", () => {
-    const { articleData: testArticleData } = testData;
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -211,7 +205,6 @@ describe("/api/articles", () => {
   });
 
   test("GET: 200 articles are sorted by date in descending order", () => {
-    const { articleData: testArticleData } = testData;
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -729,16 +722,12 @@ describe("/api/topics", () => {
 describe("/api/articles/:article_id/comments", () => {
   //GET
   test("GET: 200 responds with an array of an article's comments", () => {
-    const { commentData: testCommentData } = testData;
     return request(app)
       .get("/api/articles/1/comments")
       .expect(200)
       .then(({ body }) => {
         const { comments } = body;
-        const expectedNumberOfComments = testCommentData.filter((comment) => {
-          return comment.article_id === 1;
-        }).length;
-        expect(comments.length).toBe(expectedNumberOfComments);
+        expect(comments.length).toBe(10);
       });
   });
 
@@ -753,16 +742,12 @@ describe("/api/articles/:article_id/comments", () => {
   });
 
   test("GET: 200 returned comments have the correct properties", () => {
-    const { commentData: testCommentData } = testData;
     return request(app)
       .get("/api/articles/1/comments")
       .expect(200)
       .then(({ body }) => {
         const { comments } = body;
-        const expectedNumberOfComments = testCommentData.filter((comment) => {
-          return comment.article_id === 1;
-        }).length;
-        expect(comments.length).toBe(expectedNumberOfComments);
+        expect(comments.length).toBe(10);
         comments.forEach((comment) => {
           expect(comment).toMatchObject({
             comment_id: expect.any(Number),
@@ -872,7 +857,6 @@ describe("/api/articles/:article_id/comments", () => {
   });
 
   test("POST: 400 responds with an appropriate message when request body is missing username field", () => {
-    const { articleData: testArticleData } = testData;
     return request(app)
       .post(`/api/articles/1/comments`)
       .send({ body: "Hello World!" })
@@ -884,7 +868,6 @@ describe("/api/articles/:article_id/comments", () => {
   });
 
   test("POST: 400 responds with an appropriate message when request body is missing body field", () => {
-    const { articleData: testArticleData } = testData;
     return request(app)
       .post(`/api/articles/1/comments`)
       .send({ username: "butter_bridge" })
@@ -896,7 +879,6 @@ describe("/api/articles/:article_id/comments", () => {
   });
 
   test("POST: 400 responds with an appropriate message when request body is empty", () => {
-    const { articleData: testArticleData } = testData;
     return request(app)
       .post(`/api/articles/1/comments`)
       .send({})
@@ -915,6 +897,97 @@ describe("/api/articles/:article_id/comments", () => {
       .then(({ body }) => {
         expect(body.status).toBe(404);
         expect(body.msg).toBe("Not Found");
+      });
+  });
+
+  test("GET: 200 returns a paginated list of comments", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .query({ limit: 4, p: 1 })
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toBeArrayOfSize(4);
+      });
+  });
+
+  test("GET: 200 returns the correct comments for the queried page", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .query({ limit: 4, p: 2 })
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toBeArrayOfSize(4);
+        expect(comments.map((comment) => comment.comment_id)).toEqual([
+          7, 8, 6, 12,
+        ]);
+      });
+  });
+
+  test("GET: 200 default limit is 10", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .query({ p: 1 })
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toBeArrayOfSize(10);
+      });
+  });
+
+  test("GET: 400 returns bad request when limit query is of invalid type", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .query({ limit: "banana", p: 1 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 400 returns bad request when page query is of invalid type", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .query({ limit: 10, p: "banana" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 400 returns bad request when limit is negative", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .query({ limit: -10, p: 1 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 400 returns bad request when p is negative", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .query({ limit: 4, p: -2 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 400 returns bad request when p is 0", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .query({ limit: 4, p: 0 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.status).toBe(400);
+        expect(body.msg).toBe("Bad Request");
       });
   });
 });

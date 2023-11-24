@@ -100,8 +100,8 @@ exports.selectArticles = (
   });
 };
 
-exports.selectArticleComments = (article_id) => {
-  const queryString = `
+exports.selectArticleComments = (article_id, limit = 10, p = 1) => {
+  let queryString = `
   SELECT comments.comment_id, comments.votes, comments.created_at,
          comments.author, comments.body, comments.article_id
   FROM comments
@@ -109,6 +109,9 @@ exports.selectArticleComments = (article_id) => {
   WHERE articles.article_id = $1
   ORDER BY comments.created_at DESC
   `;
+
+  queryString += format("\nLIMIT %L OFFSET %L", limit, (p - 1) * limit);
+
   return db.query(queryString, [article_id]).then(({ rows }) => {
     return rows;
   });
