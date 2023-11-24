@@ -98,12 +98,6 @@ exports.selectArticles = (
     const [articlesResult, totalCountResult] = result;
     return [articlesResult.rows, totalCountResult.rows[0].total_count];
   });
-
-  return db.query(queryString, queryValues).then((result) => {
-    console.log(result.rowCount);
-    const { rows } = result;
-    return rows;
-  });
 };
 
 exports.selectArticleComments = (article_id) => {
