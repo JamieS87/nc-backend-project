@@ -615,7 +615,7 @@ describe("/api/articles", () => {
         expect(articles.map((article) => article.article_id)).toEqual([
           13, 5, 1, 9,
         ]);
-        expect(body.total_count).toBe(4);
+        expect(body.total_count).toBe(13);
       });
   });
 
@@ -638,7 +638,7 @@ describe("/api/articles", () => {
       .then(({ body }) => {
         const { articles, total_count } = body;
         expect(articles).toBeArrayOfSize(4);
-        expect(total_count).toBe(4);
+        expect(total_count).toBe(13);
       });
   });
 
@@ -694,6 +694,16 @@ describe("/api/articles", () => {
       .then(({ body }) => {
         expect(body.status).toBe(400);
         expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("GET: 200 returns correct total_count when filtering", () => {
+    return request(app)
+      .get("/api/articles")
+      .query({ limit: 4, p: 1, topic: "mitch" })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.total_count).toBe(12);
       });
   });
 });

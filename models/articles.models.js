@@ -71,9 +71,15 @@ exports.selectArticles = (
   LEFT JOIN comments USING (article_id)
   `;
 
+  let totalCountQueryString = `
+  SELECT COUNT(*)::INTEGER AS total_count
+  FROM articles
+  `;
+
   if (topic) {
     queryValues.push(topic);
     queryString += "WHERE topic = $1";
+    totalCountQueryString += "WHERE topic = $1";
   }
 
   queryString += `
@@ -83,7 +89,19 @@ exports.selectArticles = (
 
   queryString += format("\nLIMIT %L OFFSET %L", limit, (p - 1) * limit);
 
-  return db.query(queryString, queryValues).then(({ rows }) => {
+  const resultPromises = [
+    db.query(queryString, queryValues),
+    db.query(totalCountQueryString, queryValues),
+  ];
+
+  return Promise.all(resultPromises).then((result) => {
+    const [articlesResult, totalCountResult] = result;
+    return [articlesResult.rows, totalCountResult.rows[0].total_count];
+  });
+
+  return db.query(queryString, queryValues).then((result) => {
+    console.log(result.rowCount);
+    const { rows } = result;
     return rows;
   });
 };

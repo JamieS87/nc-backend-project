@@ -29,8 +29,9 @@ exports.getArticles = (req, res, next) => {
     promises.push(checkTopicExists(topic));
   }
   Promise.all(promises)
-    .then(([articles, _]) => {
-      res.status(200).send({ articles, total_count: articles.length });
+    .then(([articlesResult, _]) => {
+      const [articles, totalCount] = articlesResult;
+      res.status(200).send({ articles, total_count: totalCount });
     })
     .catch(next);
 };
