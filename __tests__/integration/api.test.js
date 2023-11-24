@@ -87,16 +87,14 @@ describe("/api/articles/:article_id", () => {
       });
   });
 
-  describe("/api/articles/:article_id", () => {
-    test("GET 200 returned article has a comment_count property with the correct value", () => {
-      return request(app)
-        .get("/api/articles/1")
-        .expect(200)
-        .then(({ body }) => {
-          const { article } = body;
-          expect(article.comment_count).toBe(11);
-        });
-    });
+  test("GET 200 returned article has a comment_count property with the correct value", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article.comment_count).toBe(11);
+      });
   });
 
   test("GET: 200 responds with the correct article", () => {
@@ -136,6 +134,29 @@ describe("/api/articles/:article_id", () => {
       .then(({ body }) => {
         expect(body.status).toBe(400);
         expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("DELETE: 204 deletes an article and its comments", () => {
+    return request(app)
+      .delete("/api/articles/3")
+      .expect(204)
+      .then(() => {
+        return db.query(`SELECT * FROM comments WHERE article_id = 3`);
+      })
+      .then(({ rows }) => {
+        expect(rows.length).toBe(0);
+      });
+  });
+
+  test("DELETE: 404 returns not found when the article doesn't exist", () => {
+    const articlesLength = testData.articleData.length;
+    return request(app)
+      .delete(`/api/articles/${articlesLength + 1}`)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.status).toBe(404);
+        expect(body.msg).toBe("Not Found");
       });
   });
 });

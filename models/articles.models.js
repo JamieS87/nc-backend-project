@@ -178,3 +178,23 @@ exports.insertArticle = (articleData) => {
     return rows[0];
   });
 };
+
+exports.removeArticle = (article_id) => {
+  return db
+    .query(
+      `
+  DELETE FROM comments WHERE article_id = $1`,
+      [article_id]
+    )
+    .then(() => {
+      return db.query(
+        `DELETE FROM articles WHERE article_id = $1 RETURNING *`,
+        [article_id]
+      );
+    })
+    .then(({ rows }) => {
+      if (!rows.length) {
+        return Promise.reject({ status: 404, msg: "Not Found" });
+      }
+    });
+};

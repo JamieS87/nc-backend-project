@@ -3,12 +3,12 @@ const {
   selectArticleById,
   selectArticles,
   selectArticleComments,
+  removeArticle,
   checkArticleExists,
   updateArticle,
   insertArticleComment,
 } = require("../models/articles.models");
 const { checkTopicExists } = require("../models/topics.models");
-const { checkUserExistsByUsername } = require("../models/users.models");
 
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
@@ -83,6 +83,15 @@ exports.postArticle = (req, res, next) => {
   insertArticle(articleData)
     .then((article) => {
       res.status(200).send({ article });
+    })
+    .catch(next);
+};
+
+exports.deleteArticle = (req, res, next) => {
+  const { article_id } = req.params;
+  removeArticle(article_id)
+    .then(() => {
+      res.status(204).send();
     })
     .catch(next);
 };
