@@ -2,7 +2,28 @@
 
 This project provides a Reddit-like news API with articles, topics, comments and votes.
 
+Some of the features this API implements:
+
+- Posting articles
+- Deleting articles
+- Voting on articles
+- Commenting on articles
+- Voting on comments
+- Deleting comments
+- Retreiving topics
+- Deleting topics
+- Listing users
+- Retrieving a specific user
+
+A complete list of the endpoints with HTTP methods, example responses, example request bodies and supported queries can be found in [endpoints.json](./endpoints.json)
+
 [Click to explore a live version](https://nc-news-bdi7.onrender.com/api)
+
+## Requirements
+
+This API was developed using `Postgres v14.9`. and `node v20.5.0`.
+
+Older versions may work, but no guarantees are provided.
 
 ## Installation
 

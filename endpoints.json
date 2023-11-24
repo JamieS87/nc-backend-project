@@ -99,9 +99,12 @@
     "queries": [],
     "exampleResponse": {}
   },
-  "GET /api/articles/:article_id/comments": {
-    "description": "serves up an array of article comments",
-    "queries": ["limit", "p"],
+  "PATCH /api/articles/:article_id": {
+    "description": "increments the number of votes for an article",
+    "queries": [],
+    "exampleRequestBody": {
+      "inc_votes": 10
+    },
     "exampleResponse": {
       "comments": [
         {
@@ -123,12 +126,9 @@
       ]
     }
   },
-  "PATCH /api/articles/:article_id": {
-    "description": "increments the number of votes for an article",
-    "queries": [],
-    "exampleRequestBody": {
-      "inc_votes": 10
-    },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves up an array of article comments",
+    "queries": ["limit", "p"],
     "exampleResponse": {
       "comments": [
         {
