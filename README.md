@@ -1,31 +1,46 @@
-# Northcoders News API
+# Northcoders News API 🗞
 
-This project provides a Reddit-like news API with articles, topics, comments and votes.
+This project provides a Reddit-like REST API with articles, topics, comments and voting.
 
-Some of the features this API implements:
+🚀 [**Try it LIVE!**](https://nc-news-bdi7.onrender.com/api) 🚀
 
-- Posting articles
-- Deleting articles
-- Voting on articles
-- Commenting on articles
-- Voting on comments
-- Deleting comments
-- Retreiving topics
-- Deleting topics
-- Listing users
-- Retrieving a specific user
+## API Features
 
-A complete list of the endpoints with HTTP methods, example responses, example request bodies and supported queries can be found in [endpoints.json](./endpoints.json)
+### Articles
 
-[Click to explore a live version](https://nc-news-bdi7.onrender.com/api)
+- List articles
+- Post articles
+- Delete articles
+- Vote on articles
+- Comment on articles
 
-## Requirements
+### Comments
 
-This API was developed using `Postgres v14.9`. and `node v20.5.0`.
+- Vote on comments
+- Delete comments
 
-Older versions may work, but no guarantees are provided.
+### Topics
 
-## Installation
+- Post articles to a topic
+- Retrieve topics
+- Delete topics
+
+### Users
+
+- List users
+- Retrieve a specific user
+
+---
+
+A complete list of endpoints with HTTP methods, example responses, example request bodies and supported queries can be found in [endpoints.json](./endpoints.json) or by visitng /api/endpoints.
+
+## Requirements 📝
+
+This API was developed using **`Postgres v14.9`**. and **`node v20.5.0`**.
+
+**Older versions may work, but no guarantees are provided.**
+
+## Installation 📦
 
 To install this project locally, clone the repository:
 
@@ -45,7 +60,7 @@ And install the project's dependencies with npm
 npm install
 ```
 
-## Setup
+## Setup 🔧
 
 ### Create the databases
 
@@ -73,7 +88,7 @@ Create the file `.env.development` in the base directory. It should contain:
 PGDATABASE=nc_news
 ```
 
-## Seeding
+## Seeding 🌱
 
 To seed the development database, a "seed" script is provided in package.json. Run it with the command
 
@@ -83,7 +98,7 @@ npm run seed
 
 The test database doesn't need to be seeded manually. It will be seeded automatically when running the tests.
 
-## Starting the Server
+## Starting the Server 🐹
 
 To start the server and serve the API on port 9090, run
 
@@ -93,7 +108,7 @@ npm start
 
 To check everything is working correctly, visit http://localhost:9090/api and you should be greeted with a list of available endpoints.
 
-## Running the tests
+## Running the tests 🧪
 
 The project's tests can be run using
 
